@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Plants Need Sun</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: "Inter", "Segoe UI", sans-serif;
+      background: linear-gradient(120deg, #edf7f1, #ffffff);
+      color: #2b2b2b;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 1rem;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 1rem;
+      padding: 1.8rem;
+      max-width: 440px;
+      width: 100%;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.08);
+      text-align: center;
+      animation: fadeIn 0.6s ease;
+    }
+
+    h2 {
+      font-size: 1.6rem;
+      margin-bottom: 0.3rem;
+      font-weight: 700;
+      color: #24553a;
+    }
+    .subtitle {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #555;
+      margin-bottom: 1rem;
+    }
+    .divider {
+      height: 3px;
+      width: 50px;
+      background: #a6d6b9;
+      margin: 0.6rem auto 1.4rem;
+      border-radius: 2px;
+    }
+
+    .status {
+      font-size: 0.9rem;
+      color: #555;
+      margin: 1rem 0;
+      font-style: italic;
+    }
+
+    form {
+      margin-top: 1rem;
+    }
+
+    /* Buttons (translucent green) */
+    button, input[type="submit"], .file-label {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.7rem 1.3rem;
+      border-radius: 0.5rem;
+      border: 1px solid #2c6e49;
+      background: rgba(44, 110, 73, 0.15);
+      color: #2c6e49;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      text-decoration: none;
+    }
+    button:hover, input[type="submit"]:hover, .file-label:hover {
+      background: rgba(44, 110, 73, 0.25);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px rgba(34, 78, 54, 0.25);
+    }
+
+    /* File input hidden, custom label styled */
+    input[type="file"] {
+      display: none;
+    }
+    .file-label {
+      margin-top: 1.2rem;
+      cursor: pointer;
+    }
+
+    /* Thumbnail preview */
+    #preview {
+      margin-top: 1rem;
+      display: none;
+    }
+    #preview img {
+      max-width: 100px;
+      max-height: 100px;
+      border-radius: 0.6rem;
+      border: 1px solid #d8e9de;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+      object-fit: cover;
+    }
+
+    /* Compass */
+    .compass {
+      margin: 1rem auto 1.2rem;
+      width: 150px;
+      height: 150px;
+      border: 4px solid #a6d6b9;
+      border-radius: 50%;
+      position: relative;
+      background: #f7f9f8;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .dial {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      border-radius: 50%;
+      transition: transform 0.1s linear;
+    }
+
+    .dial span {
+      position: absolute;
+      font-weight: 700;
+      color: #2c6e49;
+      font-size: 1rem;
+    }
+
+    .dial .N { top: 6px; left: 50%; transform: translateX(-50%); }
+    .dial .S { bottom: 6px; left: 50%; transform: translateX(-50%); }
+    .dial .E { right: 6px; top: 50%; transform: translateY(-50%); }
+    .dial .W { left: 6px; top: 50%; transform: translateY(-50%); }
+
+    /* Fixed arrow */
+    .arrow {
+      width: 4px;
+      height: 60px;
+      background: #e74c3c;
+      position: absolute;
+      top: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 2px;
+      z-index: 10;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Plants Need Sun</h2>
+    <div class="subtitle">Plant Care Assistant</div>
+    <div class="divider"></div>
+
+    <form method="post" enctype="multipart/form-data">
+      <!-- Compass -->
+      <div class="compass">
+        <div class="dial" id="dial">
+          <span class="N">N</span>
+          <span class="E">E</span>
+          <span class="S">S</span>
+          <span class="W">W</span>
+        </div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- Hidden input to send direction to Flask -->
+      <input type="hidden" name="direction" id="direction">
+
+      <button type="button" onclick="enableCompass()">Enable Compass</button>
+      <div id="status" class="status">(Point your phone in the direction of your window)</div>
+
+      <!-- File input (styled as button) -->
+      <label for="file-upload" class="file-label">Upload Plant</label>
+      <input id="file-upload" type="file" name="image" accept="image/*" required>
+
+      <!-- Thumbnail preview -->
+      <div id="preview">
+        <img id="preview-img" src="" alt="Plant Preview">
+      </div>
+
+      <input type="submit" value="Analyze">
+    </form>
+  </div>
+
+  <script>
+    const OFFSET = 0; // adjust to calibrate North
+
+    function degreesToDirection(deg) {
+      const dirs = ["North","East","South","West"];
+      return dirs[Math.round(deg / 90) % 4];
+    }
+
+    function handleOrientation(event) {
+      let heading;
+      if (typeof event.webkitCompassHeading === "number" && event.webkitCompassAccuracy >= 0) {
+        heading = event.webkitCompassHeading;
+      } else if (typeof event.alpha === "number") {
+        heading = (360 - event.alpha) % 360;
+      } else {
+        document.getElementById("status").innerText = "No heading available";
+        return;
+      }
+
+      const corrected = (heading + OFFSET + 360) % 360;
+      const dir = degreesToDirection(corrected);
+
+      // Update hidden input and text
+      document.getElementById("direction").value = dir;
+      document.getElementById("status").innerText =
+        `Heading: ${Math.round(corrected)}° → ${dir}`;
+
+      // Rotate dial instead of arrow
+      document.getElementById("dial").style.transform = `rotate(${corrected}deg)`;
+    }
+
+    function startCompass() {
+      window.addEventListener("deviceorientationabsolute", handleOrientation, true);
+      window.addEventListener("deviceorientation", handleOrientation, true);
+    }
+
+    function enableCompass() {
+      if (typeof DeviceOrientationEvent !== "undefined" &&
+          typeof DeviceOrientationEvent.requestPermission === "function") {
+        DeviceOrientationEvent.requestPermission()
+          .then(response => {
+            if (response === "granted") startCompass();
+            else alert("Compass permission denied");
+          })
+          .catch(() => alert("Compass not supported"));
+      } else {
+        startCompass();
+      }
+    }
+
+    // Handle file upload preview
+    document.getElementById("file-upload").addEventListener("change", function(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById("preview-img").src = e.target.result;
+          document.getElementById("preview").style.display = "block";
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+  </script>
+</body>
+</html>

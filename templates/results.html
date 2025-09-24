@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Plant Results</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: "Inter", "Segoe UI", sans-serif;
+      background: linear-gradient(120deg, #edf7f1, #ffffff);
+      color: #2b2b2b;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 1rem;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 1rem;
+      padding: 1.6rem 1.8rem;
+      max-width: 440px;
+      width: 100%;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.08);
+      text-align: center;
+      animation: fadeIn 0.6s ease;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 0.6rem;
+      font-weight: 700;
+      color: #24553a;
+    }
+    .divider {
+      height: 3px;
+      width: 50px;
+      background: #a6d6b9;
+      margin: 0.6rem auto 1.4rem;
+      border-radius: 2px;
+    }
+
+    .info {
+      margin: 1.5rem 0;
+      text-align: left;
+      padding: 0;
+    }
+    .info li {
+      list-style: none;
+      padding: 0.8rem 1rem;
+      margin: 0.5rem 0;
+      background: #f7f9f8;
+      border-radius: 0.5rem;
+      font-size: 0.95rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid #e5ece8;
+    }
+    .info li strong {
+      color: #24553a;
+      font-weight: 600;
+    }
+
+    /* Lux Scale */
+    .lux-scale {
+      margin: 2rem 0 1rem;
+      height: 16px;
+      border-radius: 8px;
+      background: linear-gradient(to right, #2c3e50, #2c6e49, #b4e0c7);
+      position: relative;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.15);
+    }
+    .marker {
+      position: absolute;
+      top: -8px;
+      width: 3px;
+      height: 32px;
+      border-radius: 2px;
+    }
+    .marker.current { background: #2c6e49; }
+    .marker.peak { background: #f39c12; }
+
+    /* Labels positioned separately */
+    .marker::after {
+      font-size: 0.75rem;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .marker.current::after {
+      content: attr(data-label);
+      top: -22px;   /* above the scale */
+      color: #2c6e49;
+    }
+    .marker.peak::after {
+      content: attr(data-label);
+      top: 38px;    /* below the scale */
+      color: #f39c12;
+    }
+
+    .scale-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 0.4rem;
+    }
+
+    .rating {
+      background: #f1f8f3;
+      color: #24553a;
+      font-weight: 600;
+      border-radius: 0.5rem;
+      padding: 0.9rem;
+      margin-top: 1.5rem;
+      font-size: 0.92rem;
+      box-shadow: inset 0 0 0 1px #d8e9de;
+    }
+
+    /* Translucent Try Another button */
+    a {
+      display: inline-block;
+      margin-top: 1.6rem;
+      padding: 0.7rem 1.3rem;
+      border-radius: 0.5rem;
+      border: 1px solid #2c6e49;
+      background: rgba(44, 110, 73, 0.15);
+      color: #2c6e49;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    a:hover {
+      background: rgba(44, 110, 73, 0.25);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px rgba(34, 78, 54, 0.25);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Plant Results</h2>
+    <div class="divider"></div>
+
+    <ul class="info">
+      <li><strong>Plant:</strong> <span>{{ data.plant }}</span></li>
+      <li><strong>Measured Sunlight:</strong> <span>{{ data.lux }} Lux</span></li>
+      <li><strong>Peak Sunlight:</strong> <span>{{ data.peak_lux }} Lux</span></li>
+      <li><strong>Recommended Sunlight:</strong> <span>{{ data.min_lux }} – {{ data.max_lux }} Lux</span></li>
+      <li><strong>Season:</strong> <span>{{ data.season }}</span></li>
+      <li><strong>Time of Day:</strong> <span>{{ data.time_of_day }}</span></li>
+      <li><strong>Window Direction:</strong> <span>{{ data.direction }}</span></li>
+    </ul>
+
+    <!-- Lux Scale -->
+    <div class="lux-scale"
+         style="--min: {{ data.min_lux }};
+                --max: {{ data.max_lux }};
+                --current: {{ data.lux }};
+                --peak: {{ data.peak_lux }};">
+      <div class="marker current"
+           style="left: calc((var(--current) - var(--min)) / (var(--max) - var(--min)) * 100%);"
+           data-label="Current"></div>
+      <div class="marker peak"
+           style="left: calc((var(--peak) - var(--min)) / (var(--max) - var(--min)) * 100%);"
+           data-label="Peak"></div>
+    </div>
+    <div class="scale-labels">
+      <span>{{ data.min_lux }} Lux</span>
+      <span>{{ data.max_lux }} Lux</span>
+    </div>
+
+    <div class="rating">{{ data.rating }}</div>
+    <a href="/">Try another</a>
+  </div>
+</body>
+</html>
