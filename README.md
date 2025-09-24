@@ -13,7 +13,7 @@ The assistant estimates peak sunlight starting with the sensor’s lux reading a
 By combining these adjustments, the assistant predicts the maximum amount of sunlight the plant receives in that location and compares it to the plant’s ideal range.
 
 # Plant-Classifier-using-ResNet-18.ipynb
-Fine-tuning a pre-trained CNN (ResNet-18) on a dataset containing 47 common house plant species to identify the user's plant.
+Fine-tuning a pre-trained CNN (ResNet-18) on a dataset containing 47 common house plant species to identify the user's plant. Link to the dataset: https://www.kaggle.com/datasets/kacpergregorowicz/house-plant-species 
 
 # Flask Server
 To prototype this project, I deployed the website on a Raspberry Pi Flask server running on the Raspberry Pi. 
