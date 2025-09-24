@@ -6,9 +6,9 @@ The user places the Raspberry Pi, which is connected to a Lux sensor (TSL2561), 
 
 # Peak Sunlight
 The assistant estimates peak sunlight starting with the sensor’s lux reading at the plant’s spot. It adjusts this value using three factors:
-	•	Time of day – the amount of lux received by the sun varies throughout the day. 
-	•	Season – more light in summer, less in winter.
-	•	Window direction – south-facing gets the most light, north-facing the least.
+- Time of day – the amount of lux received by the sun varies throughout the day. 
+- Season – more light in summer, less in winter.
+- Window direction – south-facing gets the most light, north-facing the least.
 
 By combining these adjustments, the assistant predicts the maximum amount of sunlight the plant receives in that location and compares it to the plant’s ideal range.
 
