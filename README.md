@@ -15,5 +15,8 @@ By combining these adjustments, the assistant predicts the maximum amount of sun
 # Plant-Classifier-using-ResNet-18.ipynb
 Fine-tuning a pre-trained CNN (ResNet-18) on a dataset containing 47 common house plant species to identify the user's plant. Link to the dataset: https://www.kaggle.com/datasets/kacpergregorowicz/house-plant-species 
 
+# season_database.py
+Defines a database of seasonal light distribution percentages for different times of day and window directions, modelling how much sunlight each orientation typically receives throughout the year. It also provides helper functions to determine the season based on a given month and to categorize an hour into the correct time-of-day period depending on the season.
+
 # Flask Server
 To prototype this project, I deployed the website on a Raspberry Pi Flask server running on the Raspberry Pi. 
